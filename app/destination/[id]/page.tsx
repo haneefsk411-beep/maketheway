@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Compass, Star, MapPin, Calendar, Info, ShieldAlert, Heart, Share2, Compass as TipIcon } from "lucide-react";
+import { Compass, Star, MapPin, Compass as TipIcon } from "lucide-react";
 import { destinations, mockAttractions, mockHotels, mockRestaurants } from "@/lib/mockData";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";

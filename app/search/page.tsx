@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Compass, Filter, IndianRupee, MapPin, Calendar, Users, Briefcase } from "lucide-react";
+import { Compass, Filter } from "lucide-react";
 import { destinations } from "@/lib/mockData";
-import { Destination } from "@/types";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { DestinationCard } from "@/components/DestinationCard";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Label } from "@/components/ui/Label";
@@ -28,7 +26,6 @@ function SearchResultsContent() {
   const [searchQuery, setSearchQuery] = useState(queryTo === "all" ? "" : queryTo);
   const [budgetLimit, setBudgetLimit] = useState(queryBudget);
   const [travelType, setTravelType] = useState(queryType);
-  const [filteredResults, setFilteredResults] = useState<Destination[]>([]);
 
   const travelTypeOptions = [
     { value: "all", label: "Any Type" },
@@ -39,23 +36,17 @@ function SearchResultsContent() {
     { value: "luxury", label: "Luxury" }
   ];
 
-  // Perform search matching
-  useEffect(() => {
-    const results = destinations.filter((dest) => {
-      const matchName =
-        !searchQuery ||
-        dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dest.state.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchBudget = dest.budget <= budgetLimit;
-      
-      // Let's assume all destinations fit any style for dummy demonstration, 
-      // but we can mock custom matches or let it pass.
-      return matchName && matchBudget;
-    });
-
-    setFilteredResults(results);
-  }, [searchQuery, budgetLimit, travelType]);
+  // Perform search matching inline during render
+  const filteredResults = destinations.filter((dest) => {
+    const matchName =
+      !searchQuery ||
+      dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      dest.state.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchBudget = dest.budget <= budgetLimit;
+    
+    return matchName && matchBudget;
+  });
 
   // Center coordinate for the Leaflet Map
   // If there are results, center on the first matched coordinate, otherwise default to Hyderabad
@@ -183,7 +174,7 @@ function SearchResultsContent() {
                 No Destinations Found
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">
-                No matching spots fit your budget or name filters. Try increasing your max budget or searching for basic states like "Kerala".
+                No matching spots fit your budget or name filters. Try increasing your max budget or searching for basic states like &quot;Kerala&quot;.
               </p>
             </Card>
           )}

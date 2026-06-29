@@ -13,7 +13,7 @@ interface FeatureCardProps {
 
 export const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, iconName }) => {
   // Dynamically resolve icon from lucide-react
-  const IconComponent = (Icons as any)[iconName] || Icons.HelpCircle;
+  const IconComponent = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[iconName] || Icons.HelpCircle;
 
   return (
     <motion.div

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -38,7 +37,7 @@ export default function ContactPage() {
     resolver: zodResolver(contactSchema)
   });
 
-  const onSubmit = async (data: ContactFormInput) => {
+  const onSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
@@ -47,7 +46,7 @@ export default function ContactPage() {
       setSuccess(true);
       reset();
       setTimeout(() => setSuccess(false), 4000);
-    } catch (err) {
+    } catch {
       setError("Failed to submit message. Please try again.");
     } finally {
       setIsSubmitting(false);

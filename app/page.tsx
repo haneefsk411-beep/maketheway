@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Award, Shield, Users, Compass } from "lucide-react";
+import { ArrowRight, Star, Award } from "lucide-react";
 import { destinations, whyChooseUs, mockTestimonials } from "@/lib/mockData";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -12,7 +12,7 @@ import { SearchForm } from "@/components/SearchForm";
 import { DestinationCard } from "@/components/DestinationCard";
 import { FeatureCard } from "@/components/FeatureCard";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 
 export default function Home() {
   // Take top 3 destinations as featured attractions or display them in a gorgeous layout
@@ -79,7 +79,7 @@ export default function Home() {
               className="inline-flex items-center gap-1.5 self-center lg:self-start px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-400/15 border border-indigo-500/20 text-indigo-650 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider shadow-sm"
             >
               <Award className="w-3.5 h-3.5" />
-              <span>India's Smartest AI Trip Guide</span>
+              <span>India&apos;s Smartest AI Trip Guide</span>
             </motion.div>
 
             <motion.h1
@@ -277,7 +277,7 @@ export default function Home() {
               <Card key={idx} className="p-8 border border-slate-205/50 dark:border-slate-800/40 relative">
                 <div className="flex flex-col gap-6">
                   <p className="text-slate-600 dark:text-slate-300 italic text-sm leading-relaxed">
-                    "{t.feedback}"
+                    &ldquo;{t.feedback}&rdquo;
                   </p>
                   <div className="flex items-center gap-4">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">

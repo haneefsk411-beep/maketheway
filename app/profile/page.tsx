@@ -7,7 +7,7 @@ import { Compass, User, Mail, Globe, Phone, Heart, Calendar, Bookmark, Edit3, Sa
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 
@@ -163,7 +163,7 @@ export default function ProfilePage() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as "saved" | "wishlist" | "settings")}
                     className={`pb-4 px-2 font-bold text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer relative ${
                       isActive
                         ? "border-indigo-550 text-indigo-650 dark:text-indigo-400"

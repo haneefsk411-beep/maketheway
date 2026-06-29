@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Compass, Target, Eye, ShieldAlert, Award, Globe, Heart } from "lucide-react";
+import { Compass, Target, Eye, ShieldAlert, Globe } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function AboutPage() {
@@ -91,7 +91,7 @@ export default function AboutPage() {
                   Our Vision
                 </h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                  To build the world's most trusted AI travel network, seamlessly resolving queries related to distance, local weather guidelines, bookings, and cultural guidance under a clean, accessible interface.
+                  To build the world&apos;s most trusted AI travel network, seamlessly resolving queries related to distance, local weather guidelines, bookings, and cultural guidance under a clean, accessible interface.
                 </p>
               </div>
             </Card>

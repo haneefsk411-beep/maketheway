@@ -11,7 +11,7 @@ import { Compass, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
@@ -43,7 +43,7 @@ export default function LoginPage() {
     }
   });
 
-  const onSubmit = async (data: LoginFormInput) => {
+  const onSubmit = async () => {
     setIsSubmitting(true);
     setFormError(null);
     try {
@@ -51,7 +51,7 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       alert("Successfully logged in! Redirecting to homepage...");
       router.push("/profile");
-    } catch (err) {
+    } catch {
       setFormError("Invalid credentials. Try guest login.");
     } finally {
       setIsSubmitting(false);
@@ -225,7 +225,7 @@ export default function LoginPage() {
 
             {/* Footer register redirect */}
             <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6 font-medium">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/register" className="font-bold text-indigo-550 dark:text-indigo-400 hover:underline">
                 Create an account
               </Link>

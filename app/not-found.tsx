@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Compass, AlertTriangle, ArrowRight } from "lucide-react";
+import { Compass, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
@@ -45,7 +45,7 @@ export default function NotFound() {
             </h2>
             
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
-              The route you are searching for doesn't exist in our AI database. Let's redirect you back to safety.
+              The route you are searching for doesn&apos;t exist in our AI database. Let&apos;s redirect you back to safety.
             </p>
 
             <div className="mt-8 flex justify-center">

@@ -46,7 +46,7 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema)
   });
 
-  const onSubmit = async (data: RegisterFormInput) => {
+  const onSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
@@ -56,7 +56,7 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch (err) {
+    } catch {
       setError("Registration failed. Please check network.");
     } finally {
       setIsSubmitting(false);
