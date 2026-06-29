@@ -1,17 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Menu, X, Compass, User } from "lucide-react";
+import { Sun, Moon, Menu, X, Compass, User, LogOut } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/Button";
+import { apiRequest } from "@/lib/api";
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("/auth/logout", { method: "POST" });
+    } catch {
+      // Ignore network errors on logout
+    }
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("fullName");
+    setIsLoggedIn(false);
+    alert("Successfully logged out!");
+    window.location.href = "/";
+  };
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -72,21 +91,34 @@ export const Navbar: React.FC = () => {
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           
-          <Link href="/login">
-            <Button variant="ghost" size="sm">
-              Login
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button variant="primary" size="sm">
-              Sign Up
-            </Button>
-          </Link>
-
-          {/* Quick Profile Access */}
-          <Link href="/profile" className="ml-2 w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-200" title="User Profile">
-            <User className="w-4 h-4" />
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="primary" size="sm">
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-red-500/10 hover:text-red-500 border border-slate-200/50 dark:border-slate-800/50 transition-colors duration-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+                title="Logout Account"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+              <Link href="/profile" className="ml-2 w-9 h-9 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 hover:border-indigo-500 transition-all duration-200" title="User Profile">
+                <User className="w-4.5 h-4.5" />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu controls */}
@@ -135,29 +167,41 @@ export const Navbar: React.FC = () => {
             
             <hr className="border-slate-150 dark:border-slate-900" />
             
-            <div className="flex items-center gap-4 px-3">
-              <Link href="/login" className="flex-1" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/register" className="flex-1" onClick={() => setIsOpen(false)}>
-                <Button variant="primary" className="w-full" size="sm">
-                  Sign Up
-                </Button>
-              </Link>
-            </div>
-
-            <div className="flex justify-center">
-              <Link
-                href="/profile"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-500"
-              >
-                <User className="w-4 h-4" />
-                View User Profile
-              </Link>
-            </div>
+            {!isLoggedIn ? (
+              <div className="flex items-center gap-4 px-3">
+                <Link href="/login" className="flex-1" onClick={() => setIsOpen(false)}>
+                  <Button variant="outline" className="w-full" size="sm">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/register" className="flex-1" onClick={() => setIsOpen(false)}>
+                  <Button variant="primary" className="w-full" size="sm">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 px-3">
+                <Link
+                  href="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-indigo-500/20 text-sm font-semibold text-indigo-650 dark:text-indigo-400 bg-indigo-500/5 hover:bg-indigo-500/10"
+                >
+                  <User className="w-4.5 h-4.5" />
+                  <span>Go to Dashboard</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-red-500/20 text-sm font-semibold text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
+                >
+                  <LogOut className="w-4.5 h-4.5" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

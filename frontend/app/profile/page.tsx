@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Compass, User, Mail, Globe, Phone, Heart, Calendar, Bookmark, Edit3, Save, MapPin } from "lucide-react";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { apiRequest } from "@/lib/api";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"saved" | "wishlist" | "settings">("saved");
@@ -18,49 +19,80 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("+91 9876543210");
   const [country, setCountry] = useState("India");
   const [isEditing, setIsEditing] = useState(false);
+  const [savedTrips, setSavedTrips] = useState<any[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [stats, setStats] = useState({ trips_count: 2, wishlist_count: 3, reviews_count: 4, membership_tier: "Gold Explorer" });
 
-  // Mock Saved Trips Data
-  const savedTrips = [
-    {
-      id: "trip-1",
-      title: "Family Getaway to Goa",
-      dates: "July 12 - July 15, 2026",
-      budget: "₹15,000",
-      type: "Family / Coastal",
-      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      id: "trip-2",
-      title: "Adventure Trek in Kashmir",
-      dates: "Sept 05 - Sept 12, 2026",
-      budget: "₹25,000",
-      type: "Solo / Alpine Adventure",
-      image: "https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?auto=format&fit=crop&w=400&q=80"
+  useEffect(() => {
+    async function loadProfileData() {
+      try {
+        const user = await apiRequest("/auth/me");
+        if (user) {
+          setFullName(user.full_name || "");
+          setEmail(user.email || "");
+          setPhone(user.phone || "");
+          setCountry(user.country || "");
+        }
+        
+        const summary = await apiRequest("/dashboard/summary");
+        if (summary) setStats(summary);
+
+        const trips = await apiRequest("/trips");
+        if (trips) {
+          // Format trips for UI consistency
+          const formattedTrips = trips.map((t: any) => ({
+            id: String(t.id),
+            title: t.title,
+            dates: `${t.start_date} - ${t.end_date}`,
+            budget: `₹${t.budget.toLocaleString()}`,
+            type: t.travel_type.toUpperCase(),
+            image: t.destination_id === "kashmir" 
+              ? "https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?auto=format&fit=crop&w=400&q=80"
+              : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80"
+          }));
+          setSavedTrips(formattedTrips);
+        }
+
+        const wishlists = await apiRequest("/wishlist");
+        if (wishlists) {
+          // Query destinations details to resolve wishlist
+          const destinationsList = await apiRequest("/destinations");
+          const matchedWishlist = wishlists.map((w: any) => {
+            const dest = destinationsList.find((d: any) => d.id === w.destination_id);
+            return dest ? {
+              id: dest.id,
+              name: dest.name,
+              state: dest.state,
+              image: dest.image,
+              rating: dest.rating
+            } : null;
+          }).filter(Boolean);
+          setWishlistItems(matchedWishlist);
+        }
+      } catch (err) {
+        console.warn("Failed loading live user database. Mock fallbacks are active.");
+      }
     }
-  ];
+    loadProfileData();
+  }, []);
 
-  // Mock Wishlist Data
-  const wishlistItems = [
-    {
-      id: "ker",
-      name: "Kerala Backwaters",
-      state: "Kerala",
-      image: "https://images.unsplash.com/photo-1602216056096-3c40cc0c9944?auto=format&fit=crop&w=400&q=80",
-      rating: 4.8
-    },
-    {
-      id: "jaip",
-      name: "Jaipur Forts",
-      state: "Rajasthan",
-      image: "https://images.unsplash.com/photo-1477584305590-3a63f60078d0?auto=format&fit=crop&w=400&q=80",
-      rating: 4.7
-    }
-  ];
-
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsEditing(false);
-    alert("Profile configurations saved successfully!");
+    try {
+      await apiRequest("/users/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          phone: phone,
+          country: country
+        })
+      });
+      setIsEditing(false);
+      alert("Profile configurations saved successfully!");
+    } catch (err: any) {
+      alert(`Save failed: ${err.message}`);
+    }
   };
 
   return (
@@ -89,7 +121,7 @@ export default function ProfilePage() {
                 {fullName}
               </h2>
               <p className="text-xs text-slate-455 font-semibold mt-1">
-                Explorer Tier: Gold Member
+                Explorer Tier: {stats.membership_tier || "Gold Explorer"}
               </p>
 
               <hr className="my-6 border-slate-100 dark:border-slate-800/80" />
@@ -133,15 +165,15 @@ export default function ProfilePage() {
               </h3>
               <div className="grid grid-cols-3 gap-2 text-center mt-4">
                 <div>
-                  <span className="block font-extrabold text-lg text-white">4</span>
+                  <span className="block font-extrabold text-lg text-white">{stats.trips_count}</span>
                   <span className="text-[10px] text-slate-400">Trips Taken</span>
                 </div>
                 <div>
-                  <span className="block font-extrabold text-lg text-white">2</span>
-                  <span className="text-[10px] text-slate-400">Planned AI</span>
+                  <span className="block font-extrabold text-lg text-white">{stats.reviews_count}</span>
+                  <span className="text-[10px] text-slate-400">Reviews</span>
                 </div>
                 <div>
-                  <span className="block font-extrabold text-lg text-white">12</span>
+                  <span className="block font-extrabold text-lg text-white">{stats.wishlist_count}</span>
                   <span className="text-[10px] text-slate-400">Bookmarks</span>
                 </div>
               </div>

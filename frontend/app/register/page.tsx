@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/Label";
 import { Card } from "@/components/ui/Card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { apiRequest } from "@/lib/api";
 
 // Zod Validation Schema
 const registerSchema = z
@@ -46,18 +47,27 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema)
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: RegisterFormInput) => {
     setIsSubmitting(true);
     setError(null);
     try {
-      // Mock API latency
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await apiRequest("/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          full_name: data.fullName,
+          phone: data.phoneNumber,
+          country: data.country
+        })
+      });
       setSuccess(true);
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch {
-      setError("Registration failed. Please check network.");
+    } catch (err: any) {
+      setError(err.message || "Registration failed. Please check network.");
     } finally {
       setIsSubmitting(false);
     }

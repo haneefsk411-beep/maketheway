@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/Label";
 import { Card } from "@/components/ui/Card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { apiRequest } from "@/lib/api";
 
 // Zod Schema
 const loginSchema = z.object({
@@ -43,16 +44,27 @@ export default function LoginPage() {
     }
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: LoginFormInput) => {
     setIsSubmitting(true);
     setFormError(null);
     try {
-      // Mock API delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert("Successfully logged in! Redirecting to homepage...");
+      const response = await apiRequest("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password
+        })
+      });
+
+      // Save local authentication state
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("fullName", response.user?.full_name || "Traveler");
+
+      alert("Successfully logged in! Redirecting to dashboard...");
       router.push("/profile");
-    } catch {
-      setFormError("Invalid credentials. Try guest login.");
+    } catch (err: any) {
+      setFormError(err.message || "Invalid credentials. Try guest login.");
     } finally {
       setIsSubmitting(false);
     }

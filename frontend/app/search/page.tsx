@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Compass, Filter } from "lucide-react";
 import { destinations } from "@/lib/mockData";
@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/Select";
 import { Label } from "@/components/ui/Label";
 import { Slider } from "@/components/ui/Slider";
 import MapComponent from "@/components/MapComponent";
+import { apiRequest } from "@/lib/api";
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
@@ -26,6 +27,21 @@ function SearchResultsContent() {
   const [searchQuery, setSearchQuery] = useState(queryTo === "all" ? "" : queryTo);
   const [budgetLimit, setBudgetLimit] = useState(queryBudget);
   const [travelType, setTravelType] = useState(queryType);
+  const [dbDestinations, setDbDestinations] = useState(destinations);
+
+  useEffect(() => {
+    async function loadDestinations() {
+      try {
+        const liveDests = await apiRequest("/destinations");
+        if (liveDests && liveDests.length > 0) {
+          setDbDestinations(liveDests);
+        }
+      } catch (err) {
+        console.warn("Backend offline. Serving search catalog from local memory.");
+      }
+    }
+    loadDestinations();
+  }, []);
 
   const travelTypeOptions = [
     { value: "all", label: "Any Type" },
@@ -37,7 +53,7 @@ function SearchResultsContent() {
   ];
 
   // Perform search matching inline during render
-  const filteredResults = destinations.filter((dest) => {
+  const filteredResults = dbDestinations.filter((dest) => {
     const matchName =
       !searchQuery ||
       dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

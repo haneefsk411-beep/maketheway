@@ -19,16 +19,35 @@ interface PageProps {
 export default async function DestinationDetailsPage({ params }: PageProps) {
   const { id } = await params;
   
-  // Find destination in database
-  const dest = destinations.find((d) => d.id === id);
+  // Default fallbacks to mock data
+  let dest = destinations.find((d) => d.id === id);
+  let attractions = mockAttractions[id] || [];
+  let hotels = mockHotels[id] || [];
+  let restaurants = mockRestaurants[id] || [];
+
+  try {
+    const backendHost = "http://localhost:8000/api";
+    // Attempt querying live FastAPI backend
+    const destRes = await fetch(`${backendHost}/destinations/${id}`, { next: { revalidate: 30 } });
+    if (destRes.ok) {
+      dest = await destRes.json();
+      
+      const hotelsRes = await fetch(`${backendHost}/hotels?destination_id=${id}`);
+      if (hotelsRes.ok) hotels = await hotelsRes.json();
+      
+      const resRes = await fetch(`${backendHost}/restaurants?destination_id=${id}`);
+      if (resRes.ok) restaurants = await resRes.json();
+
+      const attrRes = await fetch(`${backendHost}/places?destination_id=${id}`);
+      if (attrRes.ok) attractions = await attrRes.json();
+    }
+  } catch (err) {
+    console.warn(`FastAPI server offline. Serving destination [id=${id}] via client-side mock data fallback.`);
+  }
+
   if (!dest) {
     notFound();
   }
-
-  // Fetch contextual list data
-  const attractions = mockAttractions[dest.id] || [];
-  const hotels = mockHotels[dest.id] || [];
-  const restaurants = mockRestaurants[dest.id] || [];
 
   // Construct mock gallery list of images using high-resolution travel stock photos
   const galleryImages = [
